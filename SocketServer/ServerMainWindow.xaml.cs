@@ -36,6 +36,8 @@ namespace SocketServer
         //定义双方通信
         TcpClient remoteClient;
 
+        LinkedList<TcpClient> remoteClientLinkedList { get; set; } = new LinkedList<TcpClient>();
+
         ServerMainWindow_ViewModel ViewModel { get; set; }
 
         public ServerMainWindow()
@@ -87,6 +89,8 @@ namespace SocketServer
             {
                 //监听到客户端的连接，获取双方通信socket
                 remoteClient = mTcpListener.AcceptTcpClient();
+                remoteClientLinkedList.AddLast(remoteClient);
+
                 string msg = "Server : Client Connected! Local:{0} <-- Client:{1}".FormatWith
                 (
                     remoteClient.Client.LocalEndPoint,
@@ -153,13 +157,28 @@ namespace SocketServer
         {
             try
             {
-                //Util.Web.TcpClientUtils.Send
-                //(
-                //    tcpClient: remoteClient, // TODO 1 对 多
-                //    toSend: this.txtToSend.Text.TrimAdv()
-                //);
+                List<TcpClient> toDeleteList = new List<TcpClient>();
 
-                remoteClient.Send(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
+                foreach (var remoteClient in this.remoteClientLinkedList)
+                {
+                    if (remoteClient.Connected == false) // 收集已被断开的连接, 待删除
+                    {
+                        toDeleteList.Add(remoteClient);
+                    }
+                    else
+                    {
+                        remoteClient.Send(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
+                    }
+                }
+
+                foreach (var toDel in toDeleteList)
+                {
+                    // 删除已断开的连接
+                    this.remoteClientLinkedList.Remove(toDel);
+                }
+
+                toDeleteList.Clear();
+                toDeleteList = null;
             }
             catch (Exception ex)
             {

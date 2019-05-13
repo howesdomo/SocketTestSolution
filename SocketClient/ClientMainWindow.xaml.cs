@@ -47,7 +47,6 @@ namespace SocketClient
             this.btnSend.Click += BtnSend_Click;
         }
 
-
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
             this.btnStart.IsEnabled = false;
@@ -72,6 +71,11 @@ namespace SocketClient
 
                 //开启线程不停的接收服务端发送的数据
                 taskReceive = new Task(() => Receive());
+                taskReceive.ContinueWith((task) =>
+                {
+                    System.Diagnostics.Debug.WriteLine("client taskReceive finish");
+                });
+
                 // threadReceive.IsBackground = true;
                 taskReceive.Start();
 
@@ -88,9 +92,9 @@ namespace SocketClient
         //接收服务端消息的线程方法
         private void Receive()
         {
-            try
+            while (true) // TODO 处理 Stop 后
             {
-                while (true) // TODO 处理 Stop 后
+                try
                 {
                     string str = tcpClient.Receive(); // 自定义扩展方法
 
@@ -108,10 +112,23 @@ namespace SocketClient
                         dg1.ScrollIntoView(toAdd);
                     }));
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.GetFullInfo());
+                catch (System.IO.IOException ioException)
+                {
+                    if (tcpClient.Connected == false)
+                    {
+                        break;
+                    }
+
+                    string msg = "{0}".FormatWith(ioException.GetFullInfo());
+                    System.Diagnostics.Debug.WriteLine(msg);
+
+                    throw ioException;                    
+                }
+                catch (Exception ex)
+                {
+                    string msg = "{0}".FormatWith(ex.GetFullInfo());
+                    System.Diagnostics.Debug.WriteLine(msg);
+                }
             }
         }
 
