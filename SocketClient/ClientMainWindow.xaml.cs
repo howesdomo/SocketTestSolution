@@ -45,7 +45,9 @@ namespace SocketClient
             this.btnStart.Click += BtnStart_Click;
             this.btnStop.Click += BtnStop_Click;
             this.btnSend.Click += BtnSend_Click;
+            this.btnSimpleSend.Click += BtnSimpleSend_Click;
         }
+
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
@@ -79,6 +81,7 @@ namespace SocketClient
 
                 this.btnStop.IsEnabled = true;
                 this.btnSend.IsEnabled = this.btnStop.IsEnabled;
+                this.btnSimpleSend.IsEnabled = this.btnStop.IsEnabled;
             }
             catch (Exception ex)
             {
@@ -144,6 +147,7 @@ namespace SocketClient
 
                 this.btnStart.IsEnabled = true;
                 this.btnSend.IsEnabled = !this.btnStart.IsEnabled;
+                this.btnSimpleSend.IsEnabled = !this.btnStart.IsEnabled;
             }
             catch (Exception ex)
             {
@@ -157,6 +161,19 @@ namespace SocketClient
             try
             {
                 tcpClient.Send(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.GetFullInfo());
+            }
+        }
+
+        private void BtnSimpleSend_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 不转换为 
+                tcpClient.SimpleSend(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
             }
             catch (Exception ex)
             {
