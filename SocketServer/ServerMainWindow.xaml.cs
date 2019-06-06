@@ -25,17 +25,15 @@ namespace SocketServer
     public partial class ServerMainWindow : Window
     {
         //定义Socket对象
-        TcpListener mTcpListener;
+        TcpListener mTcpListener { get; set; }
 
         //定义监听线程
-        Task taskListen;
+        Task taskListen { get; set; }
 
         //定义接收客户端数据线程
-        Task taskReceive;
+        Task taskReceive { get; set; }
 
         //定义双方通信
-        TcpClient remoteClient;
-
         LinkedList<TcpClient> remoteClientLinkedList { get; set; } = new LinkedList<TcpClient>();
 
         ServerMainWindow_ViewModel ViewModel { get; set; }
@@ -82,13 +80,13 @@ namespace SocketServer
             }
         }
 
-        //监听
+        // 监听
         private void ListenClientConnect()
         {
             while (true)
             {
-                //监听到客户端的连接，获取双方通信socket
-                remoteClient = mTcpListener.AcceptTcpClient();
+                // 监听到客户端的连接，获取双方通信socket
+                TcpClient remoteClient = mTcpListener.AcceptTcpClient();
                 remoteClientLinkedList.AddLast(remoteClient);
 
                 string msg = "Server : Client Connected! Local:{0} <-- Client:{1}".FormatWith
@@ -98,24 +96,24 @@ namespace SocketServer
                 );
                 System.Diagnostics.Debug.WriteLine(msg);
 
-                //创建线程循环接收客户端发送的数据
+                // 创建线程循环接收客户端发送的数据
                 taskReceive = new Task(() => Receive(remoteClient));
                 taskReceive.ContinueWith((task) =>
                 {
                     System.Diagnostics.Debug.WriteLine("taskReceive is end");
                 });
 
-                //传入双方通信socket
+                // 传入双方通信socket
                 taskReceive.Start();
             }
         }
 
-        //接收客户端数据
-        private void Receive(TcpClient myClientSocket)
+        // 接收客户端数据
+        private void Receive(TcpClient client)
         {
-            while (true) // TODO 处理 Stop 后
+            while (true)
             {
-                string str = myClientSocket.Receive(); // 自定义扩展方法
+                string str = client.Receive(); // 自定义扩展方法
 
                 this.Dispatcher.Invoke(new Action(() =>
                 {
@@ -134,7 +132,7 @@ namespace SocketServer
         }
 
 
-        //关闭
+        // 关闭
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
             this.btnStop.IsEnabled = false;

@@ -24,10 +24,10 @@ namespace SocketClient
     /// </summary>
     public partial class ClientMainWindow : Window
     {
-        //定义Socket对象
+        // 定义Socket对象
         TcpClient tcpClient { get; set; }
 
-        //创建接收消息的线程
+        // 创建接收消息的线程
         Task taskReceive;
 
         ClientMainWindow_ViewModel ViewModel { get; set; }
@@ -55,9 +55,8 @@ namespace SocketClient
             {
                 IPAddress ip = IPAddress.Parse(this.txtIP.Text.Trim());
                 int port = Convert.ToInt32(this.txtPort.Text.Trim());
-                // clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //连接服务端
-                // clientSocket.Connect(ip, port);
+
+                // 连接服务端
                 tcpClient = new TcpClient();
                 tcpClient.Connect(ip, port); // 开始侦听
 
@@ -76,7 +75,6 @@ namespace SocketClient
                     System.Diagnostics.Debug.WriteLine("client taskReceive finish");
                 });
 
-                // threadReceive.IsBackground = true;
                 taskReceive.Start();
 
                 this.btnStop.IsEnabled = true;
@@ -84,6 +82,11 @@ namespace SocketClient
             }
             catch (Exception ex)
             {
+                // obj 
+                tcpClient = null;
+                taskReceive = null;
+
+                //
                 MessageBox.Show(ex.GetFullInfo());
                 this.btnStart.IsEnabled = true;
             }
@@ -92,7 +95,7 @@ namespace SocketClient
         //接收服务端消息的线程方法
         private void Receive()
         {
-            while (true) // TODO 处理 Stop 后
+            while (true)
             {
                 try
                 {
@@ -122,7 +125,7 @@ namespace SocketClient
                     string msg = "{0}".FormatWith(ioException.GetFullInfo());
                     System.Diagnostics.Debug.WriteLine(msg);
 
-                    throw ioException;                    
+                    throw ioException;
                 }
                 catch (Exception ex)
                 {
