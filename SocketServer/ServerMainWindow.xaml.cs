@@ -114,6 +114,7 @@ namespace SocketServer
             while (true)
             {
                 string str = client.Receive(); // 自定义扩展方法
+                // string str = client.StandardReceive(); // 不添加校验数据
 
                 this.Dispatcher.Invoke(new Action(() =>
                 {
@@ -166,6 +167,7 @@ namespace SocketServer
                     else
                     {
                         remoteClient.Send(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
+                        remoteClient.StandardSend(this.txtToSend.Text.TrimAdv()); // 
                     }
                 }
 

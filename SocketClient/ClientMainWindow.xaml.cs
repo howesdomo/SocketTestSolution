@@ -172,8 +172,7 @@ namespace SocketClient
         {
             try
             {
-                // 不转换为 
-                tcpClient.SimpleSend(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
+                tcpClient.StandardSend(this.txtToSend.Text.TrimAdv());
             }
             catch (Exception ex)
             {
