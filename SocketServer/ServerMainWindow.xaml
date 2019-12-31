@@ -23,6 +23,7 @@
             <Button x:Name="btnStart">Start</Button>
             <Button x:Name="btnStop" IsEnabled="False">Stop</Button>
             <Button x:Name="btnSend" IsEnabled="False">Send</Button>
+            <Button x:Name="btnSendStandard" IsEnabled="False">StandardSend</Button>
         </StackPanel>
 
         <TextBlock Text="发送内容:" Grid.Row="1" />

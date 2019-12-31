@@ -51,6 +51,7 @@ namespace SocketServer
             this.btnStart.Click += BtnStart_Click;
             this.btnStop.Click += BtnStop_Click;
             this.btnSend.Click += BtnSend_Click;
+            this.btnSendStandard.Click += BtnSendStandard_Click;
         }
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)
@@ -72,6 +73,7 @@ namespace SocketServer
 
                 this.btnStop.IsEnabled = true;
                 this.btnSend.IsEnabled = this.btnStop.IsEnabled;
+                this.btnSendStandard.IsEnabled = this.btnStop.IsEnabled;
             }
             catch (Exception ex)
             {
@@ -143,6 +145,7 @@ namespace SocketServer
 
                 this.btnStart.IsEnabled = true;
                 this.btnSend.IsEnabled = !this.btnStart.IsEnabled;
+                this.btnSendStandard.IsEnabled = !this.btnStart.IsEnabled;
             }
             catch (Exception ex)
             {
@@ -167,7 +170,40 @@ namespace SocketServer
                     else
                     {
                         remoteClient.Send(this.txtToSend.Text.TrimAdv()); // 自定义扩展方法
-                        remoteClient.StandardSend(this.txtToSend.Text.TrimAdv()); // 
+                    }
+                }
+
+                foreach (var toDel in toDeleteList)
+                {
+                    // 删除已断开的连接
+                    this.remoteClientLinkedList.Remove(toDel);
+                }
+
+                toDeleteList.Clear();
+                toDeleteList = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.GetFullInfo());
+            }
+        }
+
+
+        private void BtnSendStandard_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                List<TcpClient> toDeleteList = new List<TcpClient>();
+
+                foreach (var remoteClient in this.remoteClientLinkedList)
+                {
+                    if (remoteClient.Connected == false) // 收集已被断开的连接, 待删除
+                    {
+                        toDeleteList.Add(remoteClient);
+                    }
+                    else
+                    {
+                        remoteClient.StandardSend(this.txtToSend.Text.TrimAdv());
                     }
                 }
 

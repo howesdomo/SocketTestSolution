@@ -48,18 +48,22 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Util.HowesDOMO, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Util.HowesDOMO.1.0.3\lib\net40\Util.HowesDOMO.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WPFControls, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WPFControls.1.0.2\lib\net40\WPFControls.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="FrmServer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ServerMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -69,6 +73,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BaseViewModel.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="FrmServer.xaml.cs">
+      <DependentUpon>FrmServer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ServerMainWindow.xaml.cs">
       <DependentUpon>ServerMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -102,6 +110,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\HoweUtil\Util.HowesDOMO\Util.HowesDOMO.csproj">
+      <Project>{3363da83-f692-4367-b905-062451aca009}</Project>
+      <Name>Util.HowesDOMO</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{2b89989f-45ff-4a50-872c-220a2d71692e}</Project>
       <Name>Model</Name>
