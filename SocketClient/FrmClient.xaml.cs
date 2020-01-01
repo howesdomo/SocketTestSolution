@@ -91,7 +91,7 @@ namespace SocketClient
         private void receiveText_Handle(object sender, TcpXxxEventArgs args)
         {
             string receiveMsg = args.Msg;
-            var toAdd = new Util.Model.ConsoleData($"信息长度:{args.Msg.Length}\r\n{args.Msg}", Util.Model.ConsoleMsgType.DEFAULT);
+            var toAdd = new Util.Model.ConsoleData($"{args.Msg}", Util.Model.ConsoleMsgType.DEFAULT, args.EntryTime);
 
             frm.Dispatcher.Invoke(() =>
             {
@@ -102,10 +102,11 @@ namespace SocketClient
         private void tcpServer_StatusChange(object sender, TcpXxxStatusChangeEventArgs args)
         {
             ServerInfo = string.Format("服务器{0}中, 正在连接共 {1} 个客户端", args.IsConnect ? "开启" : "关闭", args.LinkedClientCount);
-            var toAdd = new Util.Model.ConsoleData(args.ConsoleMsg, (Util.Model.ConsoleMsgType)args.ConsoleMsgType);
+            var toAdd = new Util.Model.ConsoleData(args.ConsoleMsg, (Util.Model.ConsoleMsgType)args.ConsoleMsgType, args.EntryTime);
 
             frm.Dispatcher.Invoke(() =>
             {
+                updateUI();
                 frm.ucConsole_Log.Add(toAdd);
             });
         }
@@ -154,9 +155,7 @@ namespace SocketClient
         {
             get
             {
-                bool r = true;
-                // if(this.mMyTcpServer != null && this.mMyTcpServer.IsStart) // TODO 增加属性
-                return r;
+                return this.mMyTcpClient.IsConnectServer == false;
             }
         }
 
@@ -164,9 +163,7 @@ namespace SocketClient
         {
             get
             {
-                bool r = true;
-                // if(this.mMyTcpServer != null && this.mMyTcpServer.IsStart) // TODO 增加属性
-                return r;
+                return this.mMyTcpClient.IsConnectServer == true;
             }
         }
 
@@ -174,10 +171,15 @@ namespace SocketClient
         {
             get
             {
-                bool r = true;
-
-                return r;
+                return this.mMyTcpClient.IsConnectServer == true;
             }
+        }
+
+        private void updateUI()
+        {
+            this.OnPropertyChanged("BtnStart_IsEnabled");
+            this.OnPropertyChanged("BtnStop_IsEnabled");
+            this.OnPropertyChanged("BtnSend_IsEnabled");
         }
 
 
@@ -195,28 +197,6 @@ namespace SocketClient
                     _IsStandardReceive = value;
                 }
                 this.OnPropertyChanged("IsStandardReceive");
-            }
-        }
-
-        private Util.UIComponent.BaseCollection<MyMessage> _ReceiveList;
-
-        public Util.UIComponent.BaseCollection<MyMessage> ReceiveList
-        {
-            get { return _ReceiveList; }
-            set
-            {
-                if (_ReceiveList != null)
-                {
-                    _ReceiveList.CollectionChanged -= _ReceiveList_CollectionChanged;
-                }
-
-                _ReceiveList = value;
-                this.OnPropertyChanged("ReceiveList");
-
-                if (_ReceiveList != null)
-                {
-                    _ReceiveList.CollectionChanged += _ReceiveList_CollectionChanged;
-                }
             }
         }
 

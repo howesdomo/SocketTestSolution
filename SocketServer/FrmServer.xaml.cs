@@ -51,14 +51,25 @@ namespace SocketServer
         {
             this.frm = frm;
 
-            CMD_StartServer = new Command(() => { mMyTcpServer.StartServer(this.IP, this.Port); });
-            CMD_StopServer = new Command(() => { mMyTcpServer.StopServer(); });
+            CMD_StartServer = new Command(() =>
+            {
+                mMyTcpServer.StartServer(this.IP, this.Port); 
+                updateUI();
+            });
+
+            CMD_StopServer = new Command(() =>
+            {
+                mMyTcpServer.StopServer(); 
+                updateUI();
+            });
+
             CMD_Send = new Command(() =>
             {
                 if (this.SendContent.IsNullOrWhiteSpace() == false)
                 {
                     mMyTcpServer.Send(this.SendContent);
                 }
+                updateUI();
             });
 
             CMD_StandardSend = new Command(() =>
@@ -67,6 +78,7 @@ namespace SocketServer
                 {
                     mMyTcpServer.StandardSend(this.SendContent);
                 }
+                updateUI();
             });
 
             mMyTcpServer = new Util.Web.MyTcpServer();
@@ -91,7 +103,7 @@ namespace SocketServer
         private void receiveText_Handle(object sender, TcpXxxEventArgs args)
         {
             string receiveMsg = args.Msg;
-            var toAdd = new Util.Model.ConsoleData($"信息长度:{args.Msg.Length}\r\n{args.Msg}", Util.Model.ConsoleMsgType.DEFAULT);
+            var toAdd = new Util.Model.ConsoleData($"{args.Msg}", Util.Model.ConsoleMsgType.DEFAULT, args.EntryTime);
 
             frm.Dispatcher.Invoke(() =>
             {
@@ -102,11 +114,12 @@ namespace SocketServer
         private void tcpServer_StatusChange(object sender, TcpXxxStatusChangeEventArgs args)
         {
             ServerInfo = string.Format("服务器{0}中, 正在连接共 {1} 个客户端", args.IsConnect ? "开启" : "关闭", args.LinkedClientCount);
-            var toAdd = new Util.Model.ConsoleData(args.ConsoleMsg, (Util.Model.ConsoleMsgType)args.ConsoleMsgType);
+            var toAdd = new Util.Model.ConsoleData(args.ConsoleMsg, (Util.Model.ConsoleMsgType)args.ConsoleMsgType, args.EntryTime);
 
             frm.Dispatcher.Invoke(() =>
             {
                 frm.ucConsole_Log.Add(toAdd);
+                updateUI();
             });
         }
 
@@ -154,9 +167,7 @@ namespace SocketServer
         {
             get
             {
-                bool r = true;
-                // if(this.mMyTcpServer != null && this.mMyTcpServer.IsStart) // TODO 增加属性
-                return r;
+                return this.mMyTcpServer.IsServerStart == false;
             }
         }
 
@@ -164,9 +175,7 @@ namespace SocketServer
         {
             get
             {
-                bool r = true;
-                // if(this.mMyTcpServer != null && this.mMyTcpServer.IsStart) // TODO 增加属性
-                return r;
+                return this.mMyTcpServer.IsServerStart == true;
             }
         }
 
@@ -174,12 +183,16 @@ namespace SocketServer
         {
             get
             {
-                bool r = true;
-
-                return r;
+                return this.mMyTcpServer.IsServerStart == true;
             }
         }
 
+        private void updateUI()
+        {
+            this.OnPropertyChanged("BtnStart_IsEnabled");
+            this.OnPropertyChanged("BtnStop_IsEnabled");
+            this.OnPropertyChanged("BtnSend_IsEnabled");
+        }
 
         private bool _IsStandardReceive;
 
@@ -198,32 +211,7 @@ namespace SocketServer
             }
         }
 
-        private Util.UIComponent.BaseCollection<MyMessage> _ReceiveList;
-
-        public Util.UIComponent.BaseCollection<MyMessage> ReceiveList
-        {
-            get { return _ReceiveList; }
-            set
-            {
-                if (_ReceiveList != null)
-                {
-                    _ReceiveList.CollectionChanged -= _ReceiveList_CollectionChanged;
-                }
-
-                _ReceiveList = value;
-                this.OnPropertyChanged("ReceiveList");
-
-                if (_ReceiveList != null)
-                {
-                    _ReceiveList.CollectionChanged += _ReceiveList_CollectionChanged;
-                }
-            }
-        }
-
-        private void _ReceiveList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            this.OnPropertyChanged("ReceiveList");
-        }
+        #region 接收发送编码
 
         private List<Encoding> _EncodingList = new List<Encoding>() { Encoding.UTF8, Encoding.Unicode, Encoding.GetEncoding("GB2312"), Encoding.GetEncoding("GB18030") };
 
@@ -266,5 +254,7 @@ namespace SocketServer
                 }
             }
         }
+
+        #endregion
     }
 }
